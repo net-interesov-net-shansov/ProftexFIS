@@ -1,0 +1,92 @@
+flowchart TD
+    A[main] --> B[Загрузка Excel файла<br/>pd.read_excel]
+    B --> C[Фильтрация по гражданству<br/>Российская Федерация]
+    C --> D{Проверка существующих<br/>конкурсных групп}
+
+    D --> E[check_existing_groups]
+    E --> F{Группы существуют?}
+
+    F -->|Да| G[get_existing_groups]
+    F -->|Нет| H[calculate_competitive_groups]
+
+    G --> I[Использование существующих групп]
+    H --> J[Создание новых групп]
+    J --> K[update_config_with_groups]
+    K --> L[Запись групп в config.txt]
+
+    I --> M[generate_xml]
+    L --> M
+
+    M --> N[read_config<br/>Чтение конфигурации]
+    N --> O[Создание XML структуры]
+    O --> P[Обработка каждой записи DataFrame]
+
+    P --> Q[get_competitive_group_id<br/>Поиск ID группы]
+    P --> R[format_snils<br/>Форматирование СНИЛС]
+    P --> S[format_gender<br/>Преобразование пола]
+    P --> T[format_region<br/>Преобразование региона]
+    P --> U[format_date<br/>Форматирование даты]
+    P --> V[format_datetime<br/>Форматирование времени]
+    P --> W[safe_str<br/>Безопасное преобразование]
+
+    Q --> X[Формирование XML элементов]
+    R --> X
+    S --> X
+    T --> X
+    U --> X
+    V --> X
+    W --> X
+
+    X --> Y[pretty_format_xml<br/>Форматирование XML]
+    Y --> Z[Сохранение в файл<br/>output_YYYYMMDD_HHMMSS.xml]
+
+    Z --> AA{Пользовательский выбор<br/>Отправить пакет?}
+    AA -->|Да| BB[send_to_fis_gia]
+    AA -->|Нет| CC[Завершение работы]
+
+    BB --> DD[read_config<br/>Получение URL сервера]
+    DD --> EE[Чтение XML файла]
+    EE --> FF[HTTP POST запрос]
+    FF --> GG{Ответ сервера}
+
+    GG -->|200 OK| HH[Успешная отправка]
+    GG -->|404/Другая ошибка| II[Ошибка отправки]
+
+    HH --> CC
+    II --> CC
+
+    subgraph "Конфигурационные функции"
+    N
+    DD
+    end
+
+    subgraph "Функции проверки групп"
+    E
+    G
+    H
+    K
+    end
+
+    subgraph "Функции форматирования"
+    R
+    S
+    T
+    U
+    V
+    W
+    Q
+    end
+
+    subgraph "XML функции"
+    M
+    Y
+    end
+
+    subgraph "Сетевые функции"
+    BB
+    FF
+end
+
+
+style HH fill:#1d9200
+style II fill:#bb0000
